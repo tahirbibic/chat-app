@@ -44,15 +44,13 @@ manager = ConnectionManager()
 
 @app.websocket("/ws/{token}")
 async def websocket_endpoint(websocket: WebSocket, token: str):
-    # izvuci username iz tokena
     username = auth.decode_token(token)
     if username is None:
-        await websocket.close(code=1008)      # nevažeći token -> zatvori vezu
+        await websocket.close(code=1008)
         return
 
     await manager.connect(websocket)
 
-    # istorija
     db = SessionLocal()
     history = db.query(models.Message).order_by(models.Message.created_at).all()
     db.close()
